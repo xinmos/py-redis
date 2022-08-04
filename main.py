@@ -2,16 +2,7 @@ from gevent.pool import Pool
 from gevent.server import StreamServer
 
 from common.exception import DisConnect, CommandError, Error
-
-
-class ProtocolHandler(object):
-    def handle_request(self, socket_file):
-        # parse a request from the client into it`s component parts.
-        pass
-
-    def write_response(self, socket_file, data):
-        # serialize the response data and send it to the client.
-        pass
+from common.protocol import ProtocolHandler
 
 
 class Server(object):
