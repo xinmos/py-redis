@@ -11,8 +11,8 @@ class Client(object):
         self._socket.connect((host, port))
         self._fh = self._socket.makefile('rwb')
 
-    def execute(self, *aegs):
-        self._protocol.write_response(self._fh, aegs)
+    def execute(self, *args):
+        self._protocol.write_response(self._fh, args)
         resp = self._protocol.handle_request(self._fh)
         if isinstance(resp, Error):
             raise CommandError(resp.message)

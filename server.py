@@ -16,7 +16,7 @@ class Server(object):
         self._protocol = ProtocolHandler()
         self._kv = {}
 
-        self._commonds = self.get_commands()
+        self._commands = self.get_commands()
 
     def connection_handler(self, conn, address):
         # Convert "conn" (a socket object) into a file-like object
@@ -25,7 +25,7 @@ class Server(object):
         # process client requests until client disconnects
         while True:
             try:
-                data = self._protocol.handle_request((socket_file))
+                data = self._protocol.handle_request(socket_file)
             except DisConnect:
                 break
 
@@ -37,7 +37,7 @@ class Server(object):
             self._protocol.write_response(socket_file, resp)
 
     def get_response(self, data):
-        # here we`ll actually upack the data sent by the client,
+        # here we`ll actually unpack the data sent by the client,
         # execute the command they specified, and pass back the return value
         if not isinstance(data, list):
             try:
@@ -49,22 +49,22 @@ class Server(object):
             raise CommandError('Missing command')
 
         command = data[0].upper()
-        if command not in self._commonds:
+        if command not in self._commands:
             raise CommandError(f'Unrecognized command: {command}')
 
-        return self._commonds[command](*data[1:])
+        return self._commands[command](*data[1:])
 
     def run(self):
         self._server.serve_forever()
 
     def get_commands(self):
         return {
-            'GET': self.get,
-            'SET': self.set,
-            'DELETE': self.delete,
-            'FLUSH': self.flush,
-            'MGET': self.mget,
-            'MSET': self.mset
+            b'GET': self.get,
+            b'SET': self.set,
+            b'DELETE': self.delete,
+            b'FLUSH': self.flush,
+            b'MGET': self.mget,
+            b'MSET': self.mset
         }
 
     def get(self, key):
@@ -92,4 +92,10 @@ class Server(object):
         data = zip(items[::2], items[1::2])
         for key, value in data:
             self._kv[key] = value
-        return len(data)
+        return len(list(data))
+
+
+if __name__ == '__main__':
+    from gevent import monkey
+    monkey.patch_all()
+    Server().run()
